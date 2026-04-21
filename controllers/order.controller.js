@@ -6,11 +6,13 @@ export const createOrder = async (req, res) => {
   try {
     const { table_id, session_id, items, idempotency_key } = req.body;
 
-    // Validate session
+    await client.query('BEGIN');
+
+    // ✅ Validate session (WITH restaurant isolation)
     const sessionCheck = await client.query(
       `SELECT * FROM table_sessions 
-      WHERE id = $1 AND status = 'ACTIVE'`,
-      [session_id]
+       WHERE id = $1 AND status = 'ACTIVE' AND restaurant_id = $2`,
+      [session_id, req.user.restaurant_id]
     );
 
     if (!sessionCheck.rows.length) {
@@ -18,9 +20,7 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ message: 'Invalid or expired session' });
     }
 
-    await client.query('BEGIN');
-
-    // Idempotency check
+    // ✅ Idempotency check
     const existing = await client.query(
       'SELECT * FROM orders WHERE idempotency_key = $1',
       [idempotency_key]
@@ -44,9 +44,15 @@ export const createOrder = async (req, res) => {
 
     for (const item of items) {
       const product = await client.query(
-        'SELECT price FROM products WHERE id = $1',
+        `SELECT price FROM products 
+         WHERE id = $1 AND is_deleted = false`,
         [item.product_id]
       );
+
+      if (!product.rows.length) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ message: 'Invalid product' });
+      }
 
       const price = product.rows[0].price;
       total += price * item.quantity;
@@ -65,6 +71,7 @@ export const createOrder = async (req, res) => {
 
     await client.query('COMMIT');
 
+    // 🔥 WebSocket event
     req.io.emit('ORDER_CREATED', order);
 
     res.status(201).json(order);
@@ -74,5 +81,66 @@ export const createOrder = async (req, res) => {
     res.status(500).json({ error: err.message });
   } finally {
     client.release();
+  }
+};
+
+
+export const updateOrderStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const allowedTransitions = {
+    PENDING: ['IN_PREPARATION', 'CANCELLED'],
+    IN_PREPARATION: ['COOKING'],
+    COOKING: ['READY'],
+    READY: ['SERVED'],
+    SERVED: [],
+    CANCELLED: []
+  };
+
+  try {
+    // ✅ WITH restaurant isolation
+    const orderRes = await pool.query(
+      `SELECT * FROM orders 
+       WHERE id = $1 AND restaurant_id = $2`,
+      [id, req.user.restaurant_id]
+    );
+
+    if (!orderRes.rows.length) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    const order = orderRes.rows[0];
+
+    const validNext = allowedTransitions[order.status] || [];
+
+    if (!validNext.includes(status)) {
+      return res.status(400).json({
+        message: `Invalid transition from ${order.status} to ${status}`
+      });
+    }
+
+    const updated = await pool.query(
+      `UPDATE orders
+       SET status = $1, updated_at = NOW()
+       WHERE id = $2
+       RETURNING *`,
+      [status, id]
+    );
+
+    // 🔥 WebSocket events
+    req.io.emit('ORDER_UPDATED', {
+      orderId: id,
+      status
+    });
+
+    if (status === 'CANCELLED') {
+      req.io.emit('ORDER_CANCELLED', { orderId: id });
+    }
+
+    res.json(updated.rows[0]);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
