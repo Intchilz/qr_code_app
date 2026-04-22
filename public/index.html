@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Restaurant Menu</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <h2 id="restaurantName">Restaurant</h2>
+  <span id="tableNumber">Table --</span>
+</header>
+
+<!-- CATEGORY TABS -->
+<div id="categories" class="categories"></div>
+
+<!-- SEARCH -->
+<div class="search-box">
+  <input type="text" id="searchInput" placeholder="Search menu..."/>
+</div>
+
+<!-- MENU LIST -->
+<div id="menuList" class="menu-list"></div>
+
+<!-- FLOATING CART BUTTON (mobile-first) -->
+<button id="openCart" class="floating-cart">
+  🛒 <span id="cartCount">0</span>
+</button>
+
+<!-- CART MODAL -->
+<div id="cartModal" class="cart-modal hidden">
+  <div class="cart-content">
+
+    <!-- HEADER -->
+    <div class="cart-header">
+      <h3>Your Order</h3>
+      <button id="closeCart">✕</button>
+    </div>
+
+    <!-- ITEMS -->
+    <div id="cartItems" class="cart-items"></div>
+
+    <!-- FOOTER -->
+    <div class="cart-footer">
+      <h4>Total: K<span id="cartTotalModal">0.00</span></h4>
+      <button id="submitOrder" class="primary-btn">Place Order</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ORDER STATUS (for next step) -->
+<div id="orderStatus" class="order-status hidden"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>

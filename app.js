@@ -7,9 +7,10 @@ import sessionRoutes from './routes/session.routes.js';
 import menuRoutes from './routes/menu.routes.js';
 
 const app = express();
-
+app.use(express.static('public'));
 app.use(cors());
 app.use(express.json());
+
 
 app.get('/product', (req, res) => {
   res.send('Product route works');
