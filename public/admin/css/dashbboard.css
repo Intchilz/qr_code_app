@@ -1,0 +1,43 @@
+/* ===== ORDER CARD BASE ===== */
+.order-card {
+  background: #fff;
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 5px solid #ccc;
+  transition: all 0.3s ease;
+}
+
+/* ===== STATUS COLORS ===== */
+.order-card.pending {
+  border-left-color: #999;
+}
+
+.order-card.in_preparation {
+  border-left-color: orange;
+}
+
+.order-card.cooking {
+  border-left-color: #007bff;
+}
+
+.order-card.ready {
+  border-left-color: green;
+}
+
+/* ===== DELAY STATE ===== */
+.order-card.delayed {
+  border-left: 5px solid red;
+  background: #ffe5e5;
+  animation: pulse 1s infinite;
+}
+
+/* subtle attention animation */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.01); }
+  100% { transform: scale(1); }
+}

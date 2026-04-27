@@ -1,4 +1,11 @@
-import { addToCart, getCart, getTotal, updateQty } from './cart.js';
+import {
+  addToCart,
+  getCart,
+  getTotal,
+  increaseQty,
+  decreaseQty,
+  removeItem
+} from './cart.js';
 
 // 🔹 Categories
 export const renderCategories = (categories) => {
@@ -40,24 +47,30 @@ export const renderMenu = (products) => {
   });
 };
 
-// 🔹 Cart UI (UPDATED)
+// 🔹 Update totals (TOP BAR + MODAL)
 export const updateCartUI = () => {
-  const cart = getCart();
+  const total = getTotal();
 
-  document.getElementById('cartCount').innerText = cart.length;
+  document.getElementById('cartTotal').innerText =
+    'K' + total.toFixed(2);
 
   document.getElementById('cartTotalModal').innerText =
-    getTotal().toFixed(2);
+    'K' + total.toFixed(2);
 
   renderCartItems();
 };
 
-// 🔹 Render cart items
+// 🔹 Render cart items (NO window hacks)
 export const renderCartItems = () => {
   const container = document.getElementById('cartItems');
   const cart = getCart();
 
   container.innerHTML = '';
+
+  if (!cart.length) {
+    container.innerHTML = '<p>Cart is empty</p>';
+    return;
+  }
 
   cart.forEach(item => {
     const el = document.createElement('div');
@@ -66,27 +79,32 @@ export const renderCartItems = () => {
     el.innerHTML = `
       <div>
         <strong>${item.name}</strong><br/>
-        K${item.price}
+        K${item.price} x ${item.qty}
       </div>
 
       <div>
-        <button onclick="window.dec(${item.id})">-</button>
-        ${item.qty}
-        <button onclick="window.inc(${item.id})">+</button>
+        <button class="dec">-</button>
+        <button class="inc">+</button>
+        <button class="remove">x</button>
       </div>
     `;
 
+    // Attach events safely
+    el.querySelector('.inc').onclick = () => {
+      increaseQty(item.id);
+      updateCartUI();
+    };
+
+    el.querySelector('.dec').onclick = () => {
+      decreaseQty(item.id);
+      updateCartUI();
+    };
+
+    el.querySelector('.remove').onclick = () => {
+      removeItem(item.id);
+      updateCartUI();
+    };
+
     container.appendChild(el);
   });
-};
-
-// 🔹 expose qty controls
-window.inc = (id) => {
-  updateQty(id, 1);
-  updateCartUI();
-};
-
-window.dec = (id) => {
-  updateQty(id, -1);
-  updateCartUI();
 };

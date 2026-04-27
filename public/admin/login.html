@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Login</title>
+</head>
+<body>
+
+<h2>Login</h2>
+
+<input id="email" placeholder="Email" />
+<input id="password" type="password" placeholder="Password" />
+<button id="loginBtn">Login</button>
+
+<script type="module">
+const BASE = 'http://localhost:5000/api/v1';
+
+document.getElementById('loginBtn').onclick = async () => {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+
+  const res = await fetch(`${BASE}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+
+  const data = await res.json();
+
+  if (data.token) {
+    localStorage.setItem('token', data.token);
+    window.location.href = '/admin.html';
+  } else {
+    alert('Login failed');
+  }
+};
+</script>
+
+</body>
+</html>

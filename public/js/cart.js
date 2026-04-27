@@ -10,15 +10,24 @@ export const addToCart = (product) => {
   }
 };
 
-export const updateQty = (id, change) => {
+export const increaseQty = (id) => {
+  const item = cart.find(i => i.id === id);
+  if (item) item.qty++;
+};
+
+export const decreaseQty = (id) => {
   const item = cart.find(i => i.id === id);
   if (!item) return;
 
-  item.qty += change;
+  item.qty--;
 
   if (item.qty <= 0) {
     cart = cart.filter(i => i.id !== id);
   }
+};
+
+export const removeItem = (id) => {
+  cart = cart.filter(i => i.id !== id);
 };
 
 export const getCart = () => cart;
@@ -26,4 +35,6 @@ export const getCart = () => cart;
 export const getTotal = () =>
   cart.reduce((sum, i) => sum + i.price * i.qty, 0);
 
-export const clearCart = () => cart = [];
+export const clearCart = () => {
+  cart = [];
+};

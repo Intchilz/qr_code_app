@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="/css/admin.css"/>
+</head>
+<body>
+
+<div class="dashboard">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2 class="logo">Restaurant</h2>
+    <ul>
+      <li class="active">Dashboard</li>
+      <li>Orders</li>
+      <li>Menu</li>
+      <li>Tables / QR</li>
+      <li>Categories</li>
+      <li>Coupons</li>
+      <li>Analytics</li>
+      <li>Users</li>
+      <li>Subscription</li>
+      <li>Logs</li>
+      <li>System Health</li>
+    </ul>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <input type="text" placeholder="Search..." />
+      <div class="icons">
+        <span>🔔</span>
+        <span>👤</span>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="card"><h4>Pending</h4><p id="pendingCount">0</p></div>
+      <div class="card"><h4>Cooking</h4><p id="cookingCount">0</p></div>
+      <div class="card"><h4>Delayed</h4><p id="delayedCount">0</p></div>
+      <div class="card"><h4>Total Today</h4><p id="totalCount">0</p></div>
+    </div>
+
+    <!-- CONTENT GRID -->
+    <div class="grid">
+
+      <!-- LIVE ORDERS -->
+      <div class="panel">
+        <h3>Live Orders</h3>
+        <div id="orders"></div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div class="panel">
+        <h3>Notifications</h3>
+        <ul id="notifications"></ul>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="panel actions">
+        <button>+ Add Menu Item</button>
+        <button>+ Create Table QR</button>
+        <button>+ Add Category</button>
+      </div>
+
+      <!-- STATS GRAPH (placeholder) -->
+      <div class="panel">
+        <h3>Sales Stats</h3>
+        <div class="graph-placeholder"></div>
+      </div>
+
+      <!-- TOP ITEMS -->
+      <div class="panel">
+        <h3>Top Items</h3>
+        <ul>
+          <li>Burgers</li>
+          <li>Pasta</li>
+          <li>Cocktails</li>
+        </ul>
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="module" src="/admin/js/dashboard.js"></script>
+
+</body>
+</html>

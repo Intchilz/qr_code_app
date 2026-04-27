@@ -1,8 +1,8 @@
-export const socket = io('http://localhost:5000');
+let socket;
 
 export const initSocket = () => {
-  socket.on('ORDER_UPDATED', data => {
-    document.getElementById('orderStatus').innerText =
-      `Order ${data.orderId}: ${data.status}`;
-  });
+  socket = io('http://localhost:5000');
+  return socket;
 };
+
+export const getSocket = () => socket;

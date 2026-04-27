@@ -1,7 +1,7 @@
 import { getMenu, createOrder, initSession } from './api.js';
-import { renderCategories, updateCartUI } from './ui.js';
+import { renderCategories, updateCartUI, renderCartItems } from './ui.js';
 import { getCart, clearCart } from './cart.js';
-import { initSocket } from './socket.js';
+import { initSocket, getSocket } from './socket.js';
 
 // 🔹 QR params
 const params = new URLSearchParams(window.location.search);
@@ -17,18 +17,56 @@ if (!tableId || !restaurantId || !token) {
 // 🔹 session
 let sessionId = null;
 
+// 🔹 track current order
+let currentOrderId = null;
+
+// 🔹 init socket
 initSocket();
+const socket = getSocket();
+
+// 🔹 order status UI
+const statusEl = document.getElementById('orderStatus');
+
+const showStatus = (text) => {
+  statusEl.innerText = text;
+  statusEl.classList.remove('hidden');
+};
+
+// 🔹 SOCKET EVENTS
+socket.on('ORDER_UPDATED', (data) => {
+  if (data.orderId !== currentOrderId) return;
+
+  showStatus(`Order Status: ${data.status}`);
+
+  if (data.status === 'READY') {
+    alert('Your order is ready!');
+  }
+
+  if (data.status === 'SERVED') {
+    showStatus('Order completed');
+  }
+});
+
+socket.on('ORDER_CANCELLED', (data) => {
+  if (data.orderId !== currentOrderId) return;
+
+  showStatus('Order cancelled');
+});
 
 // 🔹 Modal controls
 const modal = document.getElementById('cartModal');
+const openBtn = document.getElementById('viewCartBtn');
 
-document.getElementById('openCart').onclick = () => {
+openBtn.onclick = () => {
   modal.classList.remove('hidden');
-  updateCartUI();
+  renderCartItems();
 };
 
-document.getElementById('closeCart').onclick = () => {
-  modal.classList.add('hidden');
+// Close on background click
+modal.onclick = (e) => {
+  if (e.target.id === 'cartModal') {
+    modal.classList.add('hidden');
+  }
 };
 
 // 🔹 Load menu
@@ -61,10 +99,13 @@ const initApp = async () => {
 document.getElementById('submitOrder').onclick = async () => {
   if (!sessionId) return alert('Session not ready');
 
+  const cart = getCart();
+  if (!cart.length) return alert('Cart is empty');
+
   const order = {
     table_id: tableId,
     session_id: sessionId,
-    items: getCart().map(i => ({
+    items: cart.map(i => ({
       product_id: i.id,
       quantity: i.qty
     })),
@@ -74,7 +115,9 @@ document.getElementById('submitOrder').onclick = async () => {
   try {
     const res = await createOrder(order);
 
-    alert(`Order #${res.id} placed`);
+    currentOrderId = res.id;
+
+    showStatus('Order Status: PENDING');
 
     clearCart();
     updateCartUI();
