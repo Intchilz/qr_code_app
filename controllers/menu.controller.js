@@ -3,7 +3,13 @@ import { pool } from '../config/db.js';
 export const getMenu = async (req, res) => {
   const { restaurantId } = req.query;
 
+  if (!restaurantId) {
+    return res.status(400).json({ error: 'restaurantId is required' });
+  }
+
   try {
+    console.log('MENU REQUEST restaurantId:', restaurantId);
+
     const categoriesRes = await pool.query(
       `SELECT * FROM categories
        WHERE restaurant_id = $1 AND is_deleted = false
@@ -14,12 +20,11 @@ export const getMenu = async (req, res) => {
     const categories = categoriesRes.rows;
 
     const productsRes = await pool.query(
-      `SELECT * FROM products
-       WHERE category_id IN (
-         SELECT id FROM categories WHERE restaurant_id = $1
-       )
-       AND availability_status = 'available'
-       AND is_deleted = false`,
+      `SELECT p.* FROM products p
+       JOIN categories c ON p.category_id = c.id
+       WHERE c.restaurant_id = $1
+       AND p.availability_status = 'available'
+       AND p.is_deleted = false`,
       [restaurantId]
     );
 
@@ -33,12 +38,18 @@ export const getMenu = async (req, res) => {
     res.json(menu);
 
   } catch (err) {
+    console.error('MENU ERROR:', err);
     res.status(500).json({ error: err.message });
   }
 };
 
+
 export const getCategories = async (req, res) => {
   const { restaurantId } = req.query;
+
+  if (!restaurantId) {
+    return res.status(400).json({ error: 'restaurantId is required' });
+  }
 
   try {
     const result = await pool.query(
@@ -49,10 +60,13 @@ export const getCategories = async (req, res) => {
     );
 
     res.json(result.rows);
+
   } catch (err) {
+    console.error('CATEGORIES ERROR:', err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 export const getProductsByCategory = async (req, res) => {
   const { categoryId } = req.params;
@@ -67,7 +81,9 @@ export const getProductsByCategory = async (req, res) => {
     );
 
     res.json(result.rows);
+
   } catch (err) {
+    console.error('PRODUCTS ERROR:', err);
     res.status(500).json({ error: err.message });
   }
 };

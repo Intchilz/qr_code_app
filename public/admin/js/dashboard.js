@@ -1,8 +1,15 @@
+// 🔐 TOKEN
 const token = localStorage.getItem('token');
 
 if (!token) {
   window.location.href = '/admin/login.html';
 }
+
+// 🔓 Decode token
+const parseJwt = (t) => JSON.parse(atob(t.split('.')[1]));
+const user = parseJwt(token);
+
+const RESTAURANT_ID = user.restaurant_id;
 
 // 🔌 Socket
 import { socket } from './socket.js';
@@ -11,16 +18,27 @@ import { socket } from './socket.js';
 const newOrderSound = new Audio('/sounds/new-order.mp3');
 const delaySound = new Audio('/sounds/delay.mp3');
 
-// unlock audio (required by browsers)
+// unlock audio
 document.body.addEventListener('click', () => {
   newOrderSound.play().then(() => newOrderSound.pause());
 }, { once: true });
 
-// 🔹 Join restaurant room (IMPORTANT)
-const RESTAURANT_ID = 1; // replace dynamically later
+// 🔐 Join correct room
 socket.emit('join_restaurant', RESTAURANT_ID);
 
-// 🔹 Delay rules (ms)
+// 🔐 Auth fetch helper
+const authFetch = (url, options = {}) => {
+  return fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      ...(options.headers || {})
+    }
+  });
+};
+
+// 🔹 Delay rules
 const DELAY_RULES = {
   PENDING: 2 * 60 * 1000,
   IN_PREPARATION: 5 * 60 * 1000,
@@ -46,6 +64,13 @@ socket.on('ORDER_CREATED', (order) => {
   div.innerHTML = `
     <strong>Table ${order.table_id}</strong>
     <span>PENDING</span>
+
+    <div class="actions">
+      <button onclick="updateStatus(${order.id}, 'IN_PREPARATION')">Start</button>
+      <button onclick="updateStatus(${order.id}, 'COOKING')">Cook</button>
+      <button onclick="updateStatus(${order.id}, 'READY')">Ready</button>
+      <button onclick="updateStatus(${order.id}, 'SERVED')">Serve</button>
+    </div>
   `;
 
   ordersList.prepend(div);
@@ -60,13 +85,26 @@ socket.on('ORDER_UPDATED', ({ orderId, status }) => {
 
   el.dataset.status = status;
   el.querySelector('span').innerText = status;
-
-  // remove delay state if recovered
   el.classList.remove('delayed');
 });
 
 // =======================
-// 🔴 DELAY DETECTION LOOP
+// 🔴 ADMIN ACTION
+// =======================
+window.updateStatus = async (orderId, status) => {
+  try {
+    await authFetch(`/api/v1/orders/${orderId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status })
+    });
+  } catch (err) {
+    console.error(err);
+    alert('Update failed');
+  }
+};
+
+// =======================
+// 🔴 DELAY DETECTION
 // =======================
 setInterval(() => {
   const orders = document.querySelectorAll('.order-card');
@@ -82,8 +120,6 @@ setInterval(() => {
     if (elapsed > DELAY_RULES[status]) {
       if (!el.classList.contains('delayed')) {
         el.classList.add('delayed');
-
-        // 🔊 play once
         delaySound.play();
 
         el.querySelector('span').innerText =
@@ -92,3 +128,14 @@ setInterval(() => {
     }
   });
 }, 10000);
+
+// =======================
+// 🔗 NAVIGATION (ADDED)
+// =======================
+window.goToMenu = () => {
+  window.location.href = '/admin/menu.html';
+};
+
+window.goToQR = () => {
+  window.location.href = '/admin/qr.html';
+};

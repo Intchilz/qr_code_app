@@ -18,7 +18,23 @@ export const login = async (req, res) => {
 
     const user = result.rows[0];
 
-    const valid = await bcrypt.compare(password, user.password_hash);
+    // 🔍 DEBUG (temporary – remove later if you want)
+    console.log('USER FOUND:', user.email);
+    console.log('HASH:', user.password_hash);
+
+    // 🔒 Prevent bcrypt crash
+    if (!user.password_hash) {
+      return res.status(500).json({ message: 'User password not set' });
+    }
+
+    let valid = false;
+
+    try {
+      valid = await bcrypt.compare(password, user.password_hash);
+    } catch (err) {
+      console.error('BCRYPT ERROR:', err);
+      return res.status(500).json({ message: 'Password processing error' });
+    }
 
     if (!valid) {
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -44,6 +60,12 @@ export const login = async (req, res) => {
     });
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    // 🔥 CRITICAL DEBUG
+    console.error('LOGIN ERROR:', err);
+
+    res.status(500).json({
+      error: err.message,
+      detail: 'Check server logs for full error'
+    });
   }
 };

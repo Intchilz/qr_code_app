@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QR Generator</title>
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<div class="dashboard">
+
+  <aside class="sidebar">
+    <ul>
+      <li onclick="location.href='/admin/admin.html'">Dashboard</li>
+      <li onclick="location.href='/admin/menu.html'">Menu</li>
+      <li class="active">QR Tables</li>
+    </ul>
+  </aside>
+
+  <main class="main">
+
+    <h2>Table QR Generator</h2>
+
+    <!-- ADD TABLE -->
+    <div class="panel">
+      <input id="tableName" placeholder="Table name (e.g. Table 1)" />
+      <button id="addTableBtn">Add Table</button>
+    </div>
+
+    <!-- TABLE LIST -->
+    <div id="tableList"></div>
+
+  </main>
+
+</div>
+
+<script type="module" src="/admin/js/qr.js"></script>
+
+</body>
+</html>

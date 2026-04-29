@@ -14,10 +14,10 @@
   <aside class="sidebar">
     <h2 class="logo">Restaurant</h2>
     <ul>
-      <li class="active">Dashboard</li>
-      <li>Orders</li>
-      <li>Menu</li>
-      <li>Tables / QR</li>
+      <li class="active" onclick="location.href='/admin/admin.html'">Dashboard</li>
+      <li onclick="location.href='/admin/orders.html'">Orders</li>
+      <li onclick="location.href='/admin/menu.html'">Menu</li>
+      <li onclick="location.href='/admin/qr.html'">QR Tables</li>
       <li>Categories</li>
       <li>Coupons</li>
       <li>Analytics</li>
@@ -54,7 +54,7 @@
       <!-- LIVE ORDERS -->
       <div class="panel">
         <h3>Live Orders</h3>
-        <div id="orders"></div>
+        <div id="ordersList"></div>
       </div>
 
       <!-- NOTIFICATIONS -->
@@ -65,9 +65,9 @@
 
       <!-- ACTIONS -->
       <div class="panel actions">
-        <button>+ Add Menu Item</button>
-        <button>+ Create Table QR</button>
-        <button>+ Add Category</button>
+        <button onclick="goToMenu()">+ Add Menu Item</button>
+        <button onclick="goToQR()">+ Create Table QR</button>
+        <button onclick="goToMenu()">+ Add Category</button>
       </div>
 
       <!-- STATS GRAPH (placeholder) -->

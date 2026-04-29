@@ -8,11 +8,11 @@ export const createOrder = async (req, res) => {
 
     await client.query('BEGIN');
 
-    // ✅ Validate session (WITH restaurant isolation)
+    // ✅ VALIDATE SESSION (NO JWT HERE)
     const sessionCheck = await client.query(
       `SELECT * FROM table_sessions 
-       WHERE id = $1 AND status = 'ACTIVE' AND restaurant_id = $2`,
-      [session_id, req.user.restaurant_id]
+       WHERE id = $1 AND status = 'ACTIVE'`,
+      [session_id]
     );
 
     if (!sessionCheck.rows.length) {
@@ -20,7 +20,10 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ message: 'Invalid or expired session' });
     }
 
-    // ✅ Idempotency check
+    const session = sessionCheck.rows[0];
+    const restaurantId = session.restaurant_id;
+
+    // ✅ IDEMPOTENCY
     const existing = await client.query(
       'SELECT * FROM orders WHERE idempotency_key = $1',
       [idempotency_key]
@@ -37,7 +40,7 @@ export const createOrder = async (req, res) => {
       `INSERT INTO orders (restaurant_id, table_id, session_id, idempotency_key)
        VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [req.user.restaurant_id, table_id, session_id, idempotency_key]
+      [restaurantId, table_id, session_id, idempotency_key]
     );
 
     const order = orderResult.rows[0];
@@ -71,8 +74,10 @@ export const createOrder = async (req, res) => {
 
     await client.query('COMMIT');
 
-    // 🔥 WebSocket event
-    req.io.emit('ORDER_CREATED', order);
+    // ✅ SOCKET (SCOPED)
+    req.io
+      .to(`restaurant_${restaurantId}`)
+      .emit('ORDER_CREATED', order);
 
     res.status(201).json(order);
 
@@ -99,7 +104,6 @@ export const updateOrderStatus = async (req, res) => {
   };
 
   try {
-    // ✅ WITH restaurant isolation
     const orderRes = await pool.query(
       `SELECT * FROM orders 
        WHERE id = $1 AND restaurant_id = $2`,
@@ -128,14 +132,18 @@ export const updateOrderStatus = async (req, res) => {
       [status, id]
     );
 
-    // 🔥 WebSocket events
-    req.io.emit('ORDER_UPDATED', {
-      orderId: id,
-      status
-    });
+    // ✅ SOCKET (SCOPED)
+    req.io
+      .to(`restaurant_${req.user.restaurant_id}`)
+      .emit('ORDER_UPDATED', {
+        orderId: id,
+        status
+      });
 
     if (status === 'CANCELLED') {
-      req.io.emit('ORDER_CANCELLED', { orderId: id });
+      req.io
+        .to(`restaurant_${req.user.restaurant_id}`)
+        .emit('ORDER_CANCELLED', { orderId: id });
     }
 
     res.json(updated.rows[0]);

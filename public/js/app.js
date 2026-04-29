@@ -3,19 +3,18 @@ import { renderCategories, updateCartUI, renderCartItems } from './ui.js';
 import { getCart, clearCart } from './cart.js';
 import { initSocket, getSocket } from './socket.js';
 
-// 🔹 QR params
+// 🔹 QR params (TOKEN ONLY NOW)
 const params = new URLSearchParams(window.location.search);
-
-const tableId = params.get('table_id');
-const restaurantId = params.get('restaurant_id');
 const token = params.get('token');
 
-if (!tableId || !restaurantId || !token) {
+if (!token) {
   alert('Invalid QR Code');
 }
 
-// 🔹 session
+// 🔹 session + context (NOW DYNAMIC)
 let sessionId = null;
+let tableId = null;
+let restaurantId = null;
 
 // 🔹 track current order
 let currentOrderId = null;
@@ -32,7 +31,9 @@ const showStatus = (text) => {
   statusEl.classList.remove('hidden');
 };
 
-// 🔹 SOCKET EVENTS
+// =======================
+// 🔌 SOCKET EVENTS
+// =======================
 socket.on('ORDER_UPDATED', (data) => {
   if (data.orderId !== currentOrderId) return;
 
@@ -49,11 +50,12 @@ socket.on('ORDER_UPDATED', (data) => {
 
 socket.on('ORDER_CANCELLED', (data) => {
   if (data.orderId !== currentOrderId) return;
-
   showStatus('Order cancelled');
 });
 
-// 🔹 Modal controls
+// =======================
+// 🛒 MODAL CONTROLS
+// =======================
 const modal = document.getElementById('cartModal');
 const openBtn = document.getElementById('viewCartBtn');
 
@@ -62,30 +64,34 @@ openBtn.onclick = () => {
   renderCartItems();
 };
 
-// Close on background click
 modal.onclick = (e) => {
   if (e.target.id === 'cartModal') {
     modal.classList.add('hidden');
   }
 };
 
-// 🔹 Load menu
+// =======================
+// 🍽️ LOAD MENU
+// =======================
 const loadMenu = async () => {
   const data = await getMenu(restaurantId);
   renderCategories(data);
 };
 
-// 🔹 Init session
+// =======================
+// 🔐 INIT SESSION (TOKEN-BASED)
+// =======================
 const initApp = async () => {
   try {
-    const session = await initSession({
-      table_id: tableId,
-      restaurant_id: restaurantId
-    });
+    const session = await initSession({ token });
 
+    // 🔥 backend must return these
     sessionId = session.id;
+    tableId = session.table_id;
+    restaurantId = session.restaurant_id;
 
-    document.getElementById('tableNumber').innerText = `Table ${tableId}`;
+    document.getElementById('tableNumber').innerText =
+      `Table ${session.table_name || tableId}`;
 
     await loadMenu();
 
@@ -95,7 +101,9 @@ const initApp = async () => {
   }
 };
 
-// 🔹 Submit order
+// =======================
+// 🧾 SUBMIT ORDER
+// =======================
 document.getElementById('submitOrder').onclick = async () => {
   if (!sessionId) return alert('Session not ready');
 

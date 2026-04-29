@@ -28,7 +28,7 @@ document.getElementById('loginBtn').onclick = async () => {
 
   if (data.token) {
     localStorage.setItem('token', data.token);
-    window.location.href = '/admin.html';
+    window.location.href = '/admin/admin.html';
   } else {
     alert('Login failed');
   }
