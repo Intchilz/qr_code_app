@@ -63,7 +63,7 @@ export const generateQR = async (req, res) => {
     const t = table.rows[0];
 
     // 🔐 USE TOKEN (better than exposing IDs)
-    const url = `http://localhost:5000/?token=${t.qr_token}`;
+    const url = `https://qr-code-app-utap.onrender.com/?token=${t.qr_token}`;
 
     const qr = await QRCode.toDataURL(url);
 
