@@ -139,3 +139,26 @@ window.goToMenu = () => {
 window.goToQR = () => {
   window.location.href = '/admin/qr.html';
 };
+
+// ===== BRANDING UPDATE =====
+document.getElementById('saveBranding').onclick = async () => {
+  const token = localStorage.getItem('token');
+
+  const formData = new FormData();
+
+  const file = document.getElementById('logoInput').files[0];
+  const color = document.getElementById('colorInput').value;
+
+  if (file) formData.append('logo', file);
+  formData.append('primary_color', color);
+
+  await fetch('/api/v1/restaurants/branding', {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    body: formData
+  });
+
+  alert('Branding updated');
+};

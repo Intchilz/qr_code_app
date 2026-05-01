@@ -1,3 +1,7 @@
+:root {
+  --primary-color: #000;
+}
+
 /* ===== GLOBAL ===== */
 body {
   font-family: Arial, sans-serif;
@@ -247,4 +251,31 @@ body {
   border: none;
   padding: 6px 12px;
   border-radius: 6px;
+}
+
+/* ===== restaurant info styles ===== */
+
+
+/* HEADER STACKED */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+/* LOGO */
+.restaurant-logo {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* APPLY THEME */
+.add-btn,
+.primary-btn,
+.floating-cart {
+  background: var(--primary-color);
+  color: white;
 }

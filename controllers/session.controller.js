@@ -16,14 +16,19 @@ export const initSession = async (req, res) => {
 
     const table = tableRes.rows[0];
 
-    // 🔥 NEW: Get restaurant name
+    // 🔥 Get restaurant branding
     const restaurantRes = await pool.query(
-      `SELECT name FROM restaurants WHERE id = $1`,
+      `SELECT name, logo_url, theme_config 
+       FROM restaurants 
+       WHERE id = $1`,
       [table.restaurant_id]
     );
 
-    const restaurantName =
-      restaurantRes.rows[0]?.name || 'Restaurant';
+    const restaurant = restaurantRes.rows[0] || {};
+
+    const restaurantName = restaurant.name || 'Restaurant';
+    const logoUrl = restaurant.logo_url || null;
+    const themeConfig = restaurant.theme_config || {};
 
     // 🔍 Check for active session
     const sessionRes = await pool.query(
@@ -40,7 +45,9 @@ export const initSession = async (req, res) => {
         ...existing,
         restaurant_id: table.restaurant_id,
         table_name: table.table_name,
-        restaurant_name: restaurantName // 🔥 NEW
+        restaurant_name: restaurantName,
+        logo_url: logoUrl,
+        theme_config: themeConfig
       });
     }
 
@@ -57,7 +64,9 @@ export const initSession = async (req, res) => {
       ...newSession.rows[0],
       restaurant_id: table.restaurant_id,
       table_name: table.table_name,
-      restaurant_name: restaurantName // 🔥 NEW
+      restaurant_name: restaurantName,
+      logo_url: logoUrl,
+      theme_config: themeConfig
     });
 
   } catch (err) {

@@ -123,13 +123,35 @@ document.addEventListener('DOMContentLoaded', () => {
         return alert('Invalid session data');
       }
 
-      // 🔥 NEW: Set restaurant name
-      document.getElementById('restaurantName').innerText =
-        session.restaurant_name || 'Restaurant';
+      // 🔥 BRANDING (STACKED HEADER)
+      const header = document.querySelector('.header');
 
-      // 🔥 UPDATED: Table display
-      document.getElementById('tableNumber').innerText =
-        session.table_name || tableId;
+      if (header) {
+        header.innerHTML = '';
+
+        if (session.logo_url) {
+          const logo = document.createElement('img');
+          logo.src = session.logo_url;
+          logo.className = 'restaurant-logo';
+          header.appendChild(logo);
+        }
+
+        const nameEl = document.createElement('h2');
+        nameEl.innerText = session.restaurant_name || 'Restaurant';
+        header.appendChild(nameEl);
+
+        const tableEl = document.createElement('span');
+        tableEl.innerText = session.table_name || tableId;
+        header.appendChild(tableEl);
+      }
+
+      // 🎨 APPLY THEME
+      if (session.theme_config?.primary_color) {
+        document.documentElement.style.setProperty(
+          '--primary-color',
+          session.theme_config.primary_color
+        );
+      }
 
       await loadMenu();
 
