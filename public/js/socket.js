@@ -1,7 +1,8 @@
 let socket;
 
 export const initSocket = () => {
-  socket = io('http://localhost:5000');
+  const BASE = window.location.origin; // 🔥 dynamic host
+  socket = io(BASE);
   return socket;
 };
 
