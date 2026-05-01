@@ -1,17 +1,34 @@
-const socket = io('http://localhost:5000');
+let socket;
 
-// 🔹 Initialize socket + join restaurant room
+// 🔌 Initialize socket
 export const initSocket = (restaurantId) => {
-  socket.emit('join_restaurant', restaurantId);
+  const BASE = window.location.origin; // 🔥 dynamic
+
+  socket = io(BASE);
+
+  socket.on('connect', () => {
+    console.log('🟢 Socket connected:', socket.id);
+
+    if (restaurantId) {
+      socket.emit('join_restaurant', restaurantId);
+    }
+  });
+
+  socket.on('connect_error', (err) => {
+    console.error('❌ Socket connection error:', err.message);
+  });
+
+  return socket;
 };
 
-// 🔹 Listen helpers (clean separation)
+// 🔁 Getter
+export const getSocket = () => socket;
+
+// 🔔 Events
 export const onOrderCreated = (callback) => {
-  socket.on('ORDER_CREATED', callback);
+  socket?.on('ORDER_CREATED', callback);
 };
 
 export const onOrderUpdated = (callback) => {
-  socket.on('ORDER_UPDATED', callback);
+  socket?.on('ORDER_UPDATED', callback);
 };
-
-export { socket };
