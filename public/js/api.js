@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5000/api/v1';
+const BASE_URL = 'https://qr-code-app-utap.onrender.com/api/v1';
 
 // 🔹 Generic helper (clean + reusable)
 const request = async (url, options = {}) => {
