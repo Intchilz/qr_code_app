@@ -32,13 +32,30 @@ export const renderMenu = (products) => {
     div.className = 'menu-item';
 
     div.innerHTML = `
-      <h4>${p.name}</h4>
-      <p>${p.description}</p>
-      <strong>K${p.price}</strong>
-      <button>Add</button>
+      <div class="menu-card">
+
+        <!-- FULL IMAGE -->
+        <img 
+          src="${p.image_url || '/no-image.png'}" 
+          alt="${p.name}"
+          class="menu-card-img"
+        />
+
+        <!-- CONTENT -->
+        <div class="menu-card-body">
+          <h4 class="menu-title">${p.name}</h4>
+          <p class="menu-desc">${p.description || ''}</p>
+
+          <div class="menu-bottom">
+            <strong class="menu-price">K${p.price}</strong>
+            <button class="add-btn">Add</button>
+          </div>
+        </div>
+
+      </div>
     `;
 
-    div.querySelector('button').onclick = () => {
+    div.querySelector('.add-btn').onclick = () => {
       addToCart(p);
       updateCartUI();
     };
@@ -47,23 +64,30 @@ export const renderMenu = (products) => {
   });
 };
 
-// 🔹 Update totals (TOP BAR + MODAL)
+// 🔹 Update totals (SAFE VERSION)
 export const updateCartUI = () => {
   const total = getTotal();
 
-  document.getElementById('cartTotal').innerText =
-    'K' + total.toFixed(2);
+  const totalTop = document.getElementById('cartTotal');       // may not exist
+  const totalModal = document.getElementById('cartTotalModal');
 
-  document.getElementById('cartTotalModal').innerText =
-    'K' + total.toFixed(2);
+  if (totalTop) {
+    totalTop.innerText = 'K' + total.toFixed(2);
+  }
+
+  if (totalModal) {
+    totalModal.innerText = total.toFixed(2); // no "K" because HTML already has it
+  }
 
   renderCartItems();
 };
 
-// 🔹 Render cart items (NO window hacks)
+// 🔹 Render cart items
 export const renderCartItems = () => {
   const container = document.getElementById('cartItems');
   const cart = getCart();
+
+  if (!container) return;
 
   container.innerHTML = '';
 
@@ -89,7 +113,6 @@ export const renderCartItems = () => {
       </div>
     `;
 
-    // Attach events safely
     el.querySelector('.inc').onclick = () => {
       increaseQty(item.id);
       updateCartUI();

@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSocket();
   const socket = getSocket();
 
-  // 🔹 UI elements (SAFE NOW)
+  // 🔹 UI elements
   const statusEl = document.getElementById('orderStatus');
   const modal = document.getElementById('cartModal');
   const openBtn = document.getElementById('openCart');
@@ -123,8 +123,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return alert('Invalid session data');
       }
 
+      // 🔥 NEW: Set restaurant name
+      document.getElementById('restaurantName').innerText =
+        session.restaurant_name || 'Restaurant';
+
+      // 🔥 UPDATED: Table display
       document.getElementById('tableNumber').innerText =
-        `Table ${session.table_name || tableId}`;
+        session.table_name || tableId;
 
       await loadMenu();
 

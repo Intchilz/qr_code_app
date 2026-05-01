@@ -20,13 +20,12 @@ export const getMenu = async (req, res) => {
     const categories = categoriesRes.rows;
 
     const productsRes = await pool.query(
-      `SELECT p.* FROM products p
-       JOIN categories c ON p.category_id = c.id
-       WHERE c.restaurant_id = $1
-       AND p.availability_status = 'available'
-       AND p.is_deleted = false`,
-      [restaurantId]
-    );
+  `SELECT p.* FROM products p
+   WHERE p.category_id IN (
+     SELECT id FROM categories WHERE restaurant_id = $1
+   )`,
+  [restaurantId]
+);
 
     const products = productsRes.rows;
 
