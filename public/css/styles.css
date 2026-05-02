@@ -268,7 +268,6 @@ body {
   width: 60px;
   height: 60px;
   object-fit: cover;
-  border-radius: 10%;
 }
 
 /* TEXT RIGHT */
@@ -281,6 +280,10 @@ body {
   margin: 0;
   font-size: 18px;
   text-align: center;
+}
+
+.header-text h2 span {
+  padding-left: 8px;
 }
 
 .header-text span {
