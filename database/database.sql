@@ -203,3 +203,6 @@ EXECUTE FUNCTION update_timestamp();
 CREATE UNIQUE INDEX unique_active_session_per_table
 ON table_sessions(table_id)
 WHERE status = 'ACTIVE';
+
+ALTER TABLE restaurants 
+ADD COLUMN IF NOT EXISTS logo_url TEXT;
