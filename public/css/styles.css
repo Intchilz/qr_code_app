@@ -265,10 +265,10 @@ body {
 
 /* LOGO LEFT */
 .restaurant-logo {
-  width: 100px;
-  height: 100px;
+  width: 60px;
+  height: 60px;
   object-fit: cover;
-  border-radius: 50%;
+  border-radius: 10%;
 }
 
 /* TEXT RIGHT */
@@ -280,6 +280,7 @@ body {
 .header-text h2 {
   margin: 0;
   font-size: 18px;
+  text-align: center;
 }
 
 .header-text span {
