@@ -2,6 +2,11 @@
   --primary-color: #000;
 }
 
+/* Use it in header accents */
+.header-text h2 {
+  color: var(--primary-color);
+}
+
 /* ===== GLOBAL ===== */
 body {
   font-family: Arial, sans-serif;
@@ -256,39 +261,91 @@ body {
 /* ===== restaurant info styles ===== */
 
 
-/* HEADER LAYOUT */
+/* ===== PREMIUM HEADER (PRODUCTION READY) ===== */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  padding: 12px 16px;
+
+  /* Fallback first (important) */
+  background: rgba(255, 255, 255, 0.95);
+
+  /* Blur layer */
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+  /* Smooth shadow transition (used by JS scroll effect) */
+  transition: box-shadow 0.25s ease, background 0.25s ease;
+}
+
+/* Enable softer background only if blur is supported */
+@supports ((-webkit-backdrop-filter: blur(10px)) or (backdrop-filter: blur(10px))) {
+  .header {
+    background: rgba(255, 255, 255, 0.75);
+  }
+}
+
+/* ===== LAYOUT ===== */
 .header-content {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+
+  animation: fadeSlide 0.35s ease;
 }
 
-/* LOGO LEFT */
+/* ===== LOGO ===== */
 .restaurant-logo {
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   object-fit: cover;
+
+  border-radius: 14px;
+
+  /* Premium elevation */
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.12),
+    0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
-/* TEXT RIGHT */
+/* ===== TEXT BLOCK ===== */
 .header-text {
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 
+/* Restaurant name */
 .header-text h2 {
   margin: 0;
-  font-size: 18px;
-  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+
+  color: #111;
 }
 
-.header-text h2 span {
-  padding-left: 8px;
-}
-
+/* Table name */
 .header-text span {
-  font-size: 14px;
-  color: #666;
+  font-size: 13px;
+  color: #777;
+}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* APPLY THEME */

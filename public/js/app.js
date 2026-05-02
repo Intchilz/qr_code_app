@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const modal = document.getElementById('cartModal');
   const openBtn = document.getElementById('openCart');
   const submitBtn = document.getElementById('submitOrder');
+  const header = document.querySelector('.header');
 
   if (!openBtn || !modal || !submitBtn) {
     console.error('❌ Critical UI elements missing');
@@ -72,6 +73,19 @@ document.addEventListener('DOMContentLoaded', () => {
       modal.classList.add('hidden');
     }
   };
+
+  // =======================
+  // 🌫️ SHADOW ON SCROLL (FIXED POSITION)
+  // =======================
+  window.addEventListener('scroll', () => {
+    if (!header) return;
+
+    if (window.scrollY > 10) {
+      header.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+    } else {
+      header.style.boxShadow = 'none';
+    }
+  });
 
   // =======================
   // 🍽️ LOAD MENU
@@ -123,9 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return alert('Invalid session data');
       }
 
-      // 🔥 UPDATED BRANDING LAYOUT (LEFT LOGO + RIGHT TEXT)
-      const header = document.querySelector('.header');
-
+      // 🔥 HEADER BUILD
       if (header) {
         header.innerHTML = '';
 
@@ -146,6 +158,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const nameEl = document.createElement('h2');
         nameEl.innerText = session.restaurant_name || 'Restaurant';
+
+        // 🔥 STATUS DOT
+        const statusDot = document.createElement('span');
+        statusDot.style.width = '8px';
+        statusDot.style.height = '8px';
+        statusDot.style.background =
+          session.theme_config?.primary_color || 'green';
+        statusDot.style.borderRadius = '50%';
+        statusDot.style.display = 'inline-block';
+        statusDot.style.marginLeft = '6px';
+
+        nameEl.appendChild(statusDot);
 
         const tableEl = document.createElement('span');
         tableEl.innerText = session.table_name || tableId;
