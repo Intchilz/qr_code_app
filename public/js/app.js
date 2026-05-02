@@ -123,26 +123,38 @@ document.addEventListener('DOMContentLoaded', () => {
         return alert('Invalid session data');
       }
 
-      // 🔥 BRANDING (STACKED HEADER)
+      // 🔥 UPDATED BRANDING LAYOUT (LEFT LOGO + RIGHT TEXT)
       const header = document.querySelector('.header');
 
       if (header) {
         header.innerHTML = '';
 
+        const wrapper = document.createElement('div');
+        wrapper.className = 'header-content';
+
+        // LEFT → LOGO
         if (session.logo_url) {
           const logo = document.createElement('img');
           logo.src = session.logo_url;
           logo.className = 'restaurant-logo';
-          header.appendChild(logo);
+          wrapper.appendChild(logo);
         }
+
+        // RIGHT → TEXT
+        const textBlock = document.createElement('div');
+        textBlock.className = 'header-text';
 
         const nameEl = document.createElement('h2');
         nameEl.innerText = session.restaurant_name || 'Restaurant';
-        header.appendChild(nameEl);
 
         const tableEl = document.createElement('span');
         tableEl.innerText = session.table_name || tableId;
-        header.appendChild(tableEl);
+
+        textBlock.appendChild(nameEl);
+        textBlock.appendChild(tableEl);
+
+        wrapper.appendChild(textBlock);
+        header.appendChild(wrapper);
       }
 
       // 🎨 APPLY THEME
